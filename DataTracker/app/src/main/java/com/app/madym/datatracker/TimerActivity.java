@@ -2,6 +2,7 @@ package com.app.madym.datatracker;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -29,17 +30,18 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
     private ArrayList<TimerEntry> mTimerEntries;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void init() {
         setTitle(R.string.timer_activity);
     }
 
+    @Override
     public void createAndSetAdapter(RecyclerView list) {
         mTimerEntries = new ArrayList<>();
         mAdapter = new TimerAdapter(this, mTimerEntries);
         list.setAdapter(mAdapter);
     }
 
+    @Override
     public void configureFab(FloatingActionButton fab) {
         if (fab != null) fab.setOnClickListener(this);
     }
@@ -135,6 +137,12 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
             // Whenever the view is clicked, toggle the timer
             mEntry.setState(mEntry.isTiming() ? TimerEntry.NOT_TIMING : TimerEntry.TIMING);
             updateViewForTiming();
+
+            // Actually do this instead
+//            final int position = getAdapterPosition();
+//            Intent i = new Intent(getApplicationContext(), EntryActivity.class);
+//            i.putExtra(EntryActivity.BUNDLE_KEY_ENTRY, mTimerEntries.get(position));
+//            startActivity(i);
         }
 
         @Override

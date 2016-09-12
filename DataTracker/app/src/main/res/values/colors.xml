@@ -6,7 +6,7 @@
 
     <color name="timer_item_background">#BDBDBD</color>
     <color name="timer_item_text">@color/colorPrimaryDark</color>
-    <color name="timer_item_divider">#9E9E9E</color>
+    <color name="item_divider">#9E9E9E</color>
 
     <color name="activity_background">#EEEEEE</color>
 

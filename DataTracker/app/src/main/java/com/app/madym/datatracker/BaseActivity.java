@@ -26,6 +26,8 @@ public class BaseActivity extends AppCompatActivity {
 
         //getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
+        init();
+
         RecyclerView list = (RecyclerView) findViewById(R.id.list);
         list.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
@@ -36,11 +38,15 @@ public class BaseActivity extends AppCompatActivity {
         configureFab(fab);
     }
 
-    public void createAndSetAdapter(RecyclerView list) {
+    public void init() {
+        // Other classes should override this
+    }
 
+    public void createAndSetAdapter(RecyclerView list) {
+        // Other classes should override this
     }
 
     public void configureFab(FloatingActionButton fab) {
-
+        // Other classes should override this
     }
 }

@@ -1,11 +1,15 @@
 package com.app.madym.datatracker;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.util.Pair;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class TimerEntry {
+public class TimerEntry implements Parcelable {
 
     public static final int TIMING = 0;
     public static final int PAUSED = 1;
@@ -21,6 +25,36 @@ public class TimerEntry {
         mState = NOT_TIMING;
         mEntries = new ArrayList<>();
     }
+
+    public TimerEntry(Parcel in) {
+        mCategory = in.readString();
+        mTimestamp = in.readLong();
+        mState = in.readInt();
+        mEntries = in.readArrayList(null);
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int i) {
+        out.writeString(mCategory);
+        out.writeLong(mTimestamp);
+        out.writeInt(mState);
+        out.writeList(mEntries);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public TimerEntry createFromParcel(Parcel in) {
+            return new TimerEntry(in);
+        }
+
+        public TimerEntry[] newArray(int size) {
+            return new TimerEntry[size];
+        }
+    };
 
     public void setState(int state) {
         if (state != mState) {
@@ -82,10 +116,15 @@ public class TimerEntry {
         return null;
     }
 
-    private String getTimeString(long millis) {
+    public static String getTimeString(long millis) {
         final long second = (millis / 1000) % 60;
         final long minute = (millis / (1000 * 60)) % 60;
         final long hour = (millis / (1000 * 60 * 60)) % 24;
         return String.format("%02d:%02d:%02d", hour, minute, second);
+    }
+
+    public static String getDateString(long millis) {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        return formatter.format(new Date(millis));
     }
 }
