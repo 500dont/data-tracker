@@ -1,5 +1,8 @@
 package com.app.madym.datatracker;
 
+import android.support.v4.util.Pair;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class TimerEntry {
@@ -9,14 +12,14 @@ public class TimerEntry {
     public static final int NOT_TIMING = 2;
 
     private String mCategory;
-    private int mTotal;
-    private long mTimestamp; // If timing when it started
+    private long mTimestamp; // When the timing started (if timing)
     private int mState;
+    private ArrayList<Pair<Long, Long>> mEntries; // first = date, second = amount of time
 
-    public TimerEntry(String category, int total) {
+    public TimerEntry(String category) {
         mCategory = category;
-        mTotal = total;
         mState = NOT_TIMING;
+        mEntries = new ArrayList<>();
     }
 
     public void setState(int state) {
@@ -32,10 +35,23 @@ public class TimerEntry {
                     break;
 
                 case NOT_TIMING:
-                    mTotal += Calendar.getInstance().getTimeInMillis() - mTimestamp;
+                    final long add = Calendar.getInstance().getTimeInMillis() - mTimestamp;
+                    mEntries.add(new Pair(mTimestamp, add));
                     break;
             }
         }
+    }
+
+    public void setEntries(ArrayList<Pair<Long, Long>> entries) {
+        mEntries = entries;
+    }
+
+    public ArrayList<Pair<Long, Long>> getEntries() {
+        return mEntries;
+    }
+
+    public void setCategory(String category) {
+        mCategory = category;
     }
 
     public String getCategory() {
@@ -43,7 +59,15 @@ public class TimerEntry {
     }
 
     public String getTotalTimeString() {
-        return getTimeString(mTotal);
+        return getTimeString(getTotalTime());
+    }
+
+    public long getTotalTime() {
+        long total = 0;
+        for (int i = 0; i < mEntries.size(); i++) {
+            total += mEntries.get(i).second;
+        }
+        return total;
     }
 
     public boolean isTiming() {

@@ -23,7 +23,12 @@
         <item name="android:textSize">21sp</item>
         <item name="android:fontFamily">sans-serif-smallcaps</item>
         <item name="android:textAllCaps">true</item>
-        <item name="android:textColor">@color/list_text</item>
+        <item name="android:textColor">@color/timer_item_text</item>
+    </style>
+
+    <style name="AppAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColorPrimary">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
 </resources>

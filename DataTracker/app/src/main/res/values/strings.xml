@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">Data Tracker</string>
-    <string name="timer_activity">Time</string>
+    <string name="timer_activity">Timers</string>
+
+    <!-- New entry dialog -->
+    <string name="entry_name">Entry name</string>
+    <string name="new_entry_title">Create timer entry</string>
+    <string name="positive_button">Create</string>
+    <string name="positive_update_button">Update</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="update_entry_title">Update timer entry</string>
+    <string name="invalid_name">Invalid entry name</string>
+
 </resources>

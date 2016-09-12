@@ -1,22 +1,29 @@
 package com.app.madym.datatracker;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TimerActivity extends AppCompatActivity implements View.OnClickListener {
+public class TimerActivity extends BaseActivity implements View.OnClickListener {
+
+    private static final int UND = -1;
 
     private TimerAdapter mAdapter;
     private ArrayList<TimerEntry> mTimerEntries;
@@ -24,34 +31,23 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.timer_activity);
         setTitle(R.string.timer_activity);
+    }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setElevation(0); // get rid of ugs shadow
-        setSupportActionBar(toolbar);
-
-        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
-        RecyclerView list = (RecyclerView) findViewById(R.id.list);
-        list.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        list.setLayoutManager(layoutManager);
-
+    public void createAndSetAdapter(RecyclerView list) {
         mTimerEntries = new ArrayList<>();
         mAdapter = new TimerAdapter(this, mTimerEntries);
         list.setAdapter(mAdapter);
+    }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+    public void configureFab(FloatingActionButton fab) {
         if (fab != null) fab.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.fab) {
-            TimerEntry entry = new TimerEntry("SLEEP", 0);
-            mTimerEntries.add(entry);
-            mAdapter.notifyItemInserted(mTimerEntries.size()-1);
+            showEntryDialog(UND); // UND treats this as new entry
         }
     }
 
@@ -84,7 +80,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         TextView mCategoryText;
         TextView mTotalText;
@@ -111,6 +107,7 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             mTimerText = (TextView) view.findViewById(R.id.timer_text);
             mAction = (TextView) view.findViewById(R.id.action);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         private void updateViewForTiming() {
@@ -139,5 +136,59 @@ public class TimerActivity extends AppCompatActivity implements View.OnClickList
             mEntry.setState(mEntry.isTiming() ? TimerEntry.NOT_TIMING : TimerEntry.TIMING);
             updateViewForTiming();
         }
+
+        @Override
+        public boolean onLongClick(View view) {
+            final int position = getAdapterPosition();
+            showEntryDialog(position);
+            return true;
+        }
+    }
+
+    private void showEntryDialog(final int entryIndex) {
+        // TODO: Something to do with style weirdness, text selection / handles don't use
+        // accent colour as desired, what's up with that?
+        final boolean isNew = entryIndex == UND;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppAlertDialog);
+        builder.setTitle(isNew ? R.string.new_entry_title : R.string.update_entry_title);
+
+        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        final View dialogView =  inflater.inflate(R.layout.new_entry_dialog, mRoot, false);
+        final EditText input = (EditText) dialogView.findViewById(R.id.input);
+        if (!isNew) {
+            // We're editing a current item so update input text with current name
+            TimerEntry entry = mTimerEntries.get(entryIndex);
+            input.setText(entry.getCategory());
+        }
+
+        builder.setView(dialogView);
+        builder.setPositiveButton(isNew ? R.string.positive_button : R.string.positive_update_button,
+                new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final String text = input.getText().toString();
+                // TODO Should also check for unique name
+                if (!TextUtils.isEmpty(text)) {
+                    if (isNew) {
+                        TimerEntry entry = new TimerEntry(text);
+                        mTimerEntries.add(entry);
+                        mAdapter.notifyItemInserted(mTimerEntries.size() - 1);
+                    } else {
+                        mTimerEntries.get(entryIndex).setCategory(text);
+                        mAdapter.notifyItemChanged(entryIndex);
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            R.string.invalid_name, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
     }
 }
