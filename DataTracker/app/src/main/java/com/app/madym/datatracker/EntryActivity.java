@@ -18,7 +18,7 @@ public class EntryActivity extends BaseActivity {
 
     private EntryAdapter mAdapter;
     private TimerEntry mTimerEntry;
-    private ArrayList<Pair<Long, Long>> mEntries;
+    private ArrayList<TimerEntry.Entry> mEntries;
 
     @Override
     public void init() {
@@ -48,11 +48,11 @@ public class EntryActivity extends BaseActivity {
 
     public class EntryAdapter extends RecyclerView.Adapter<EntryHolder> {
 
-        private final ArrayList<Pair<Long, Long>> mEntries;
+        private final ArrayList<TimerEntry.Entry> mEntries;
         private Context mContext;
         private LayoutInflater mInflater;
 
-        public EntryAdapter(Context context, ArrayList<Pair<Long, Long>> entries) {
+        public EntryAdapter(Context context, ArrayList<TimerEntry.Entry> entries) {
             mInflater = LayoutInflater.from(context);
             mEntries = entries;
             mContext = context;
@@ -77,7 +77,7 @@ public class EntryActivity extends BaseActivity {
 
     public class EntryHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        Pair<Long, Long> mEntry;
+        TimerEntry.Entry mEntry;
         TextView mDateText;
         TextView mTimeText;
 
@@ -88,7 +88,7 @@ public class EntryActivity extends BaseActivity {
             itemView.setOnClickListener(this);
         }
 
-        public void bindEntry(Pair<Long, Long> entry) {
+        public void bindEntry(TimerEntry.Entry entry) {
             mEntry = entry;
             mDateText.setText(TimerEntry.getDateString(mEntry.first));
             mTimeText.setText(TimerEntry.getTimeString(mEntry.second));

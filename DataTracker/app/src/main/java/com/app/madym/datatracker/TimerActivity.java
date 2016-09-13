@@ -108,6 +108,7 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
             mTotalText = (TextView) view.findViewById(R.id.total_text);
             mTimerText = (TextView) view.findViewById(R.id.timer_text);
             mAction = (TextView) view.findViewById(R.id.action);
+            mAction.setOnClickListener(this);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
         }
@@ -134,15 +135,16 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
 
         @Override
         public void onClick(View v) {
-            // Whenever the view is clicked, toggle the timer
-            mEntry.setState(mEntry.isTiming() ? TimerEntry.NOT_TIMING : TimerEntry.TIMING);
-            updateViewForTiming();
-
-            // Actually do this instead
-//            final int position = getAdapterPosition();
-//            Intent i = new Intent(getApplicationContext(), EntryActivity.class);
-//            i.putExtra(EntryActivity.BUNDLE_KEY_ENTRY, mTimerEntries.get(position));
-//            startActivity(i);
+            final int id = v.getId();
+            if (id == R.id.action) {
+                mEntry.setState(mEntry.isTiming() ? TimerEntry.NOT_TIMING : TimerEntry.TIMING);
+                updateViewForTiming();
+            } else {
+                final int position = getAdapterPosition();
+                Intent i = new Intent(getApplicationContext(), EntryActivity.class);
+                i.putExtra(EntryActivity.BUNDLE_KEY_ENTRY, mTimerEntries.get(position));
+                startActivity(i);
+            }
         }
 
         @Override

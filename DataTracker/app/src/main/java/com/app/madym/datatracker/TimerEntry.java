@@ -2,7 +2,6 @@ package com.app.madym.datatracker;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v4.util.Pair;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
@@ -18,7 +17,7 @@ public class TimerEntry implements Parcelable {
     private String mCategory;
     private long mTimestamp; // When the timing started (if timing)
     private int mState;
-    private ArrayList<Pair<Long, Long>> mEntries; // first = date, second = amount of time
+    private ArrayList<Entry> mEntries; // first = date, second = amount of time
 
     public TimerEntry(String category) {
         mCategory = category;
@@ -30,7 +29,7 @@ public class TimerEntry implements Parcelable {
         mCategory = in.readString();
         mTimestamp = in.readLong();
         mState = in.readInt();
-        mEntries = in.readArrayList(null);
+        mEntries = in.readArrayList(TimerEntry.Entry.class.getClassLoader());
     }
 
     @Override
@@ -70,17 +69,17 @@ public class TimerEntry implements Parcelable {
 
                 case NOT_TIMING:
                     final long add = Calendar.getInstance().getTimeInMillis() - mTimestamp;
-                    mEntries.add(new Pair(mTimestamp, add));
+                    mEntries.add(new Entry(mTimestamp, add));
                     break;
             }
         }
     }
 
-    public void setEntries(ArrayList<Pair<Long, Long>> entries) {
+    public void setEntries(ArrayList<Entry> entries) {
         mEntries = entries;
     }
 
-    public ArrayList<Pair<Long, Long>> getEntries() {
+    public ArrayList<Entry> getEntries() {
         return mEntries;
     }
 
@@ -126,5 +125,42 @@ public class TimerEntry implements Parcelable {
     public static String getDateString(long millis) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         return formatter.format(new Date(millis));
+    }
+
+    public static class Entry implements Parcelable {
+
+        public long first;
+        public long second;
+
+        public Entry(long first, long second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        public Entry(Parcel in) {
+            first = in.readLong();
+            second = in.readLong();
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int i) {
+            out.writeLong(first);
+            out.writeLong(second);
+        }
+
+        public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+            public Entry createFromParcel(Parcel in) {
+                return new Entry(in);
+            }
+
+            public Entry[] newArray(int size) {
+                return new Entry[size];
+            }
+        };
     }
 }
