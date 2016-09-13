@@ -6,16 +6,13 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +36,8 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
         mTimerEntries = new ArrayList<>();
         mAdapter = new TimerAdapter(this, mTimerEntries);
         list.setAdapter(mAdapter);
+        mTimerEntries.add(new TimerEntry("Sleep"));
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -82,16 +81,20 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
         }
     }
 
-    public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
+            View.OnLongClickListener {
 
         TextView mCategoryText;
         TextView mTotalText;
         TextView mTimerText;
-        TextView mAction;
+        ImageView mAction1;
+        ImageView mAction2;
         TimerEntry mEntry;
 
         Handler mHandler;
         Runnable mTimeRunnable;
+        Runnable mBlinkRunnable;
+
         boolean mTiming;
 
         public TimerHolder(Context ctx, View view) {
@@ -104,21 +107,46 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
                     mHandler.postDelayed(this, 1000);
                 }
             };
+            mBlinkRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    final boolean isVisible = mTimerText.getVisibility() == View.VISIBLE;
+                    mTimerText.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
+                    mHandler.postDelayed(this, 500);
+                }
+            };
             mCategoryText = (TextView) view.findViewById(R.id.category_text);
             mTotalText = (TextView) view.findViewById(R.id.total_text);
             mTimerText = (TextView) view.findViewById(R.id.timer_text);
-            mAction = (TextView) view.findViewById(R.id.action);
-            mAction.setOnClickListener(this);
+
+            mAction1 = (ImageView) view.findViewById(R.id.action_1);
+            mAction2 = (ImageView) view.findViewById(R.id.action_2);
+
+            mAction1.setOnClickListener(this);
+            mAction2.setOnClickListener(this);
+
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
         }
 
         private void updateViewForTiming() {
+            // TODO this is gross
             if (mEntry.isTiming() && !mTiming) {
                 mTiming = true;
                 mHandler.post(mTimeRunnable);
+                mAction1.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause));
+                mAction2.setEnabled(true);
                 mTimerText.setVisibility(View.VISIBLE);
             } else {
+                mAction1.setImageDrawable(getResources().getDrawable(
+                        mTiming ? R.drawable.ic_done : R.drawable.ic_play));
+                if (mTiming) {
+                    // Blink!
+                    mHandler.post(mBlinkRunnable);
+                } else {
+                    mHandler.removeCallbacks(mBlinkRunnable);
+                    mAction2.setEnabled(false);
+                }
                 mTiming = false;
                 mHandler.removeCallbacks(mTimeRunnable);
                 mTimerText.setVisibility(View.INVISIBLE);
@@ -136,14 +164,28 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
         @Override
         public void onClick(View v) {
             final int id = v.getId();
-            if (id == R.id.action) {
-                mEntry.setState(mEntry.isTiming() ? TimerEntry.NOT_TIMING : TimerEntry.TIMING);
-                updateViewForTiming();
-            } else {
-                final int position = getAdapterPosition();
-                Intent i = new Intent(getApplicationContext(), EntryActivity.class);
-                i.putExtra(EntryActivity.BUNDLE_KEY_ENTRY, mTimerEntries.get(position));
-                startActivity(i);
+            switch (id) {
+                case R.id.action_1:
+                    if (mEntry.isTiming()) {
+                        mEntry.setState(TimerEntry.STOPPED);
+                    } else if (mEntry.isStopped()) {
+                        mEntry.setState(TimerEntry.NOT_TIMING); // This also saves the entry
+                    } else {
+                        mEntry.setState(TimerEntry.TIMING);
+                    }
+                    updateViewForTiming();
+                    break;
+
+                case R.id.action_2:
+                    mEntry.setState(TimerEntry.CANCELLED);
+                    updateViewForTiming();
+                    break;
+
+                default:
+                    final int position = getAdapterPosition();
+                    Intent i = new Intent(getApplicationContext(), EntryActivity.class);
+                    i.putExtra(EntryActivity.BUNDLE_KEY_ENTRY, mTimerEntries.get(position));
+                    startActivity(i);
             }
         }
 

@@ -10,12 +10,16 @@ import java.util.Calendar;
 
 public class TimerEntry implements Parcelable {
 
+    private static final int UND = -1;
+
     public static final int TIMING = 0;
-    public static final int PAUSED = 1;
-    public static final int NOT_TIMING = 2;
+    public static final int NOT_TIMING = 1;
+    public static final int STOPPED = 2;
+    public static final int CANCELLED = 3;
 
     private String mCategory;
-    private long mTimestamp; // When the timing started (if timing)
+    private long mTimerStart;
+    private long mTimerEnd;
     private int mState;
     private ArrayList<Entry> mEntries; // first = date, second = amount of time
 
@@ -27,7 +31,7 @@ public class TimerEntry implements Parcelable {
 
     public TimerEntry(Parcel in) {
         mCategory = in.readString();
-        mTimestamp = in.readLong();
+        mTimerStart = in.readLong();
         mState = in.readInt();
         mEntries = in.readArrayList(TimerEntry.Entry.class.getClassLoader());
     }
@@ -35,7 +39,7 @@ public class TimerEntry implements Parcelable {
     @Override
     public void writeToParcel(Parcel out, int i) {
         out.writeString(mCategory);
-        out.writeLong(mTimestamp);
+        out.writeLong(mTimerStart);
         out.writeInt(mState);
         out.writeList(mEntries);
     }
@@ -60,23 +64,26 @@ public class TimerEntry implements Parcelable {
             mState = state;
             switch(mState) {
                 case TIMING:
-                    mTimestamp = Calendar.getInstance().getTimeInMillis();
+                    mTimerStart = Calendar.getInstance().getTimeInMillis();
+                    mTimerEnd = UND;
                     break;
 
-                case PAUSED:
-                    // Don't do anything for paused right now
+                case STOPPED:
+                    mTimerEnd = Calendar.getInstance().getTimeInMillis();
                     break;
 
                 case NOT_TIMING:
-                    final long add = Calendar.getInstance().getTimeInMillis() - mTimestamp;
-                    mEntries.add(new Entry(mTimestamp, add));
+                    if (mTimerStart != UND && mTimerEnd != UND) {
+                        mEntries.add(new Entry(mTimerStart, mTimerEnd - mTimerStart));
+                    }
+                    break;
+
+                case CANCELLED:
+                    mTimerStart = UND;
+                    mTimerEnd = UND;
                     break;
             }
         }
-    }
-
-    public void setEntries(ArrayList<Entry> entries) {
-        mEntries = entries;
     }
 
     public ArrayList<Entry> getEntries() {
@@ -107,9 +114,13 @@ public class TimerEntry implements Parcelable {
         return mState == TIMING;
     }
 
+    public boolean isStopped() {
+        return mState == STOPPED;
+    }
+
     public String getTimerString() {
         if (isTiming()) {
-            final long millis = Calendar.getInstance().getTimeInMillis() - mTimestamp;
+            final long millis = Calendar.getInstance().getTimeInMillis() - mTimerStart;
             return getTimeString(millis);
         }
         return null;
@@ -123,6 +134,7 @@ public class TimerEntry implements Parcelable {
     }
 
     public static String getDateString(long millis) {
+        // TODO Do the time as well
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         return formatter.format(new Date(millis));
     }

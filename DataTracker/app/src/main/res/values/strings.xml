@@ -2,6 +2,10 @@
     <string name="app_name">Data Tracker</string>
     <string name="timer_activity">Timers</string>
 
+    <!-- Timer actions -->
+    <string name="timer_start">Start</string>
+    <string name="timer_stop">Stop</string>
+
     <!-- New entry dialog -->
     <string name="entry_name">Entry name</string>
     <string name="new_entry_title">Create timer entry</string>
