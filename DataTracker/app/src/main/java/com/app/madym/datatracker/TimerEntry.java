@@ -134,8 +134,7 @@ public class TimerEntry implements Parcelable {
     }
 
     public static String getDateString(long millis) {
-        // TODO Do the time as well
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat formatter = new SimpleDateFormat("d MMM h:mm a");
         return formatter.format(new Date(millis));
     }
 
