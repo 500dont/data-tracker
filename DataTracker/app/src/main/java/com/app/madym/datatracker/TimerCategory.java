@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class TimerEntry implements Parcelable {
+public class TimerCategory implements Parcelable {
 
     private static final int UND = -1;
 
@@ -23,17 +23,17 @@ public class TimerEntry implements Parcelable {
     private int mState;
     private ArrayList<Entry> mEntries; // first = date, second = amount of time
 
-    public TimerEntry(String category) {
+    public TimerCategory(String category) {
         mCategory = category;
         mState = NOT_TIMING;
         mEntries = new ArrayList<>();
     }
 
-    public TimerEntry(Parcel in) {
+    public TimerCategory(Parcel in) {
         mCategory = in.readString();
         mTimerStart = in.readLong();
         mState = in.readInt();
-        mEntries = in.readArrayList(TimerEntry.Entry.class.getClassLoader());
+        mEntries = in.readArrayList(TimerCategory.Entry.class.getClassLoader());
     }
 
     @Override
@@ -50,12 +50,12 @@ public class TimerEntry implements Parcelable {
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public TimerEntry createFromParcel(Parcel in) {
-            return new TimerEntry(in);
+        public TimerCategory createFromParcel(Parcel in) {
+            return new TimerCategory(in);
         }
 
-        public TimerEntry[] newArray(int size) {
-            return new TimerEntry[size];
+        public TimerCategory[] newArray(int size) {
+            return new TimerCategory[size];
         }
     };
 
@@ -102,6 +102,10 @@ public class TimerEntry implements Parcelable {
         return getTimeString(getTotalTime());
     }
 
+    public long getStartTime() {
+        return mTimerStart;
+    }
+
     public long getTotalTime() {
         long total = 0;
         for (int i = 0; i < mEntries.size(); i++) {
@@ -134,7 +138,7 @@ public class TimerEntry implements Parcelable {
     }
 
     public static String getDateString(long millis) {
-        SimpleDateFormat formatter = new SimpleDateFormat("d MMM h:mm a");
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE d MMM h:mm a");
         return formatter.format(new Date(millis));
     }
 

@@ -3,7 +3,6 @@ package com.app.madym.datatracker;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,24 +16,24 @@ public class EntryActivity extends BaseActivity {
     public static final String BUNDLE_KEY_ENTRY = "timerEntry";
 
     private EntryAdapter mAdapter;
-    private TimerEntry mTimerEntry;
-    private ArrayList<TimerEntry.Entry> mEntries;
+    private TimerCategory mTimerCategory;
+    private ArrayList<TimerCategory.Entry> mEntries;
 
     @Override
     public void init() {
         Bundle data = getIntent().getExtras();
         if (data != null) {
-            mTimerEntry = data.getParcelable(BUNDLE_KEY_ENTRY);
+            mTimerCategory = data.getParcelable(BUNDLE_KEY_ENTRY);
         }
-        if (mTimerEntry != null) {
-            setTitle(mTimerEntry.getCategory());
-            mEntries = mTimerEntry.getEntries();
+        if (mTimerCategory != null) {
+            setTitle(mTimerCategory.getCategory());
+            mEntries = mTimerCategory.getEntries();
         }
     }
 
     @Override
     public void createAndSetAdapter(RecyclerView list) {
-        if (mTimerEntry != null) {
+        if (mTimerCategory != null) {
             mAdapter = new EntryAdapter(this, mEntries);
             list.setAdapter(mAdapter);
         }
@@ -48,11 +47,11 @@ public class EntryActivity extends BaseActivity {
 
     public class EntryAdapter extends RecyclerView.Adapter<EntryHolder> {
 
-        private final ArrayList<TimerEntry.Entry> mEntries;
+        private final ArrayList<TimerCategory.Entry> mEntries;
         private Context mContext;
         private LayoutInflater mInflater;
 
-        public EntryAdapter(Context context, ArrayList<TimerEntry.Entry> entries) {
+        public EntryAdapter(Context context, ArrayList<TimerCategory.Entry> entries) {
             mInflater = LayoutInflater.from(context);
             mEntries = entries;
             mContext = context;
@@ -77,7 +76,7 @@ public class EntryActivity extends BaseActivity {
 
     public class EntryHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TimerEntry.Entry mEntry;
+        TimerCategory.Entry mEntry;
         TextView mDateText;
         TextView mTimeText;
 
@@ -88,10 +87,10 @@ public class EntryActivity extends BaseActivity {
             itemView.setOnClickListener(this);
         }
 
-        public void bindEntry(TimerEntry.Entry entry) {
+        public void bindEntry(TimerCategory.Entry entry) {
             mEntry = entry;
-            mDateText.setText(TimerEntry.getDateString(mEntry.first));
-            mTimeText.setText(TimerEntry.getTimeString(mEntry.second));
+            mDateText.setText(TimerCategory.getDateString(mEntry.first));
+            mTimeText.setText(TimerCategory.getTimeString(mEntry.second));
         }
 
         @Override

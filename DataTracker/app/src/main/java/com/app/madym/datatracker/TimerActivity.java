@@ -24,7 +24,7 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
     private static final int UND = -1;
 
     private TimerAdapter mAdapter;
-    private ArrayList<TimerEntry> mTimerEntries;
+    private ArrayList<TimerCategory> mTimerCategories;
 
     @Override
     public void init() {
@@ -33,10 +33,10 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
 
     @Override
     public void createAndSetAdapter(RecyclerView list) {
-        mTimerEntries = new ArrayList<>();
-        mAdapter = new TimerAdapter(this, mTimerEntries);
+        mTimerCategories = new ArrayList<>();
+        mAdapter = new TimerAdapter(this, mTimerCategories);
         list.setAdapter(mAdapter);
-        mTimerEntries.add(new TimerEntry("Sleep"));
+        mTimerCategories.add(new TimerCategory("Sleep"));
         mAdapter.notifyDataSetChanged();
     }
 
@@ -54,11 +54,11 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
 
     public class TimerAdapter extends RecyclerView.Adapter<TimerHolder> {
 
-        private final List<TimerEntry> mTimers;
+        private final List<TimerCategory> mTimers;
         private Context mContext;
         private LayoutInflater mInflater;
 
-        public TimerAdapter(Context context, List<TimerEntry> timers) {
+        public TimerAdapter(Context context, List<TimerCategory> timers) {
             mInflater = LayoutInflater.from(context);
             mTimers = timers;
             mContext = context;
@@ -89,7 +89,7 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
         TextView mTimerText;
         ImageView mAction1;
         ImageView mAction2;
-        TimerEntry mEntry;
+        TimerCategory mEntry;
 
         Handler mHandler;
         Runnable mTimeRunnable;
@@ -154,7 +154,7 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
             }
         }
 
-        public void bindEntry(TimerEntry entry) {
+        public void bindEntry(TimerCategory entry) {
             mEntry = entry;
             mCategoryText.setText(entry.getCategory());
             mTotalText.setText(mEntry.getTotalTimeString());
@@ -167,24 +167,24 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
             switch (id) {
                 case R.id.action_1:
                     if (mEntry.isTiming()) {
-                        mEntry.setState(TimerEntry.STOPPED);
+                        mEntry.setState(TimerCategory.STOPPED);
                     } else if (mEntry.isStopped()) {
-                        mEntry.setState(TimerEntry.NOT_TIMING); // This also saves the entry
+                        mEntry.setState(TimerCategory.NOT_TIMING); // This also saves the entry
                     } else {
-                        mEntry.setState(TimerEntry.TIMING);
+                        mEntry.setState(TimerCategory.TIMING);
                     }
                     updateViewForTiming();
                     break;
 
                 case R.id.action_2:
-                    mEntry.setState(TimerEntry.CANCELLED);
+                    mEntry.setState(TimerCategory.CANCELLED);
                     updateViewForTiming();
                     break;
 
                 default:
                     final int position = getAdapterPosition();
                     Intent i = new Intent(getApplicationContext(), EntryActivity.class);
-                    i.putExtra(EntryActivity.BUNDLE_KEY_ENTRY, mTimerEntries.get(position));
+                    i.putExtra(EntryActivity.BUNDLE_KEY_ENTRY, mTimerCategories.get(position));
                     startActivity(i);
             }
         }
@@ -209,7 +209,7 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
         final EditText input = (EditText) dialogView.findViewById(R.id.input);
         if (!isNew) {
             // We're editing a current item so update input text with current name
-            TimerEntry entry = mTimerEntries.get(entryIndex);
+            TimerCategory entry = mTimerCategories.get(entryIndex);
             input.setText(entry.getCategory());
         }
 
@@ -222,11 +222,11 @@ public class TimerActivity extends BaseActivity implements View.OnClickListener 
                 // TODO Should also check for unique name
                 if (!TextUtils.isEmpty(text)) {
                     if (isNew) {
-                        TimerEntry entry = new TimerEntry(text);
-                        mTimerEntries.add(entry);
-                        mAdapter.notifyItemInserted(mTimerEntries.size() - 1);
+                        TimerCategory entry = new TimerCategory(text);
+                        mTimerCategories.add(entry);
+                        mAdapter.notifyItemInserted(mTimerCategories.size() - 1);
                     } else {
-                        mTimerEntries.get(entryIndex).setCategory(text);
+                        mTimerCategories.get(entryIndex).setCategory(text);
                         mAdapter.notifyItemChanged(entryIndex);
                     }
                 } else {
