@@ -50,11 +50,8 @@ public class DataTrackerDbHelper extends SQLiteOpenHelper {
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_ITEM, timer.getItemName());
-        // TODO (!!!) entry.first and .second are date and time amount, should be start and end
-        // Make sure to update in TimerItem.Entry, also should probably make those names not
-        // the worst
-        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_START, entry.first);
-        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_END, entry.second);
+        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_START, entry.startTime);
+        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_END, entry.endTime);
 
         // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert(DataTrackerContract.TimerEntry.TABLE_NAME, null, values);
@@ -101,8 +98,8 @@ public class DataTrackerDbHelper extends SQLiteOpenHelper {
         // New value for one column
         ContentValues values = new ContentValues();
         values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_ITEM, item);
-        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_START, entry.first);
-        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_START, entry.second);
+        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_START, entry.startTime);
+        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_END, entry.endTime);
 
         // Which row to update, based on the title
         String selection = DataTrackerContract.TimerEntry.COLUMN_NAME_ITEM + " LIKE ? AND "

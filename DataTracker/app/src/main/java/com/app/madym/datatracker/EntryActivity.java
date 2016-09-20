@@ -91,8 +91,8 @@ public class EntryActivity extends BaseActivity {
 
         public void bindEntry(TimerItem.Entry entry) {
             mEntry = entry;
-            mDateText.setText(TimerItem.getDateString(mEntry.first));
-            mTimeText.setText(TimerItem.getTimeString(mEntry.second));
+            mDateText.setText(TimerItem.getDateString(mEntry.startTime));
+            mTimeText.setText(TimerItem.getTimeString(mEntry.getTotalTime()));
         }
 
         @Override

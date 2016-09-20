@@ -153,14 +153,14 @@ public class TrackingActivity extends BaseActivity implements View.OnClickListen
                 mTiming = false;
                 mHandler.removeCallbacks(mTimeRunnable);
                 mTimerText.setVisibility(View.INVISIBLE);
-                mTotalText.setText(mEntry.getTotalTimeString());
+                mTotalText.setText(TimerItem.getTimeString(mEntry.getTotalTime()));
             }
         }
 
         public void bindEntry(TimerItem entry) {
             mEntry = entry;
             mCategoryText.setText(entry.getItemName());
-            mTotalText.setText(mEntry.getTotalTimeString());
+            mTotalText.setText(TimerItem.getTimeString(mEntry.getTotalTime()));
             updateViewForTiming();
         }
 

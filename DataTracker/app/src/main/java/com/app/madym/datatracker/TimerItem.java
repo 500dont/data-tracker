@@ -21,7 +21,7 @@ public class TimerItem implements Parcelable {
     private long mTimerStart;
     private long mTimerEnd;
     private int mState;
-    private ArrayList<Entry> mEntries; // first = date, second = amount of time
+    private ArrayList<Entry> mEntries; // startTime = date, endTime = amount of time
 
     public TimerItem(String name) {
         mItemName = name;
@@ -74,7 +74,7 @@ public class TimerItem implements Parcelable {
 
                 case NOT_TIMING:
                     if (mTimerStart != UND && mTimerEnd != UND) {
-                        mEntries.add(new Entry(mTimerStart, mTimerEnd - mTimerStart));
+                        mEntries.add(new Entry(mTimerStart, mTimerEnd));
                     }
                     break;
 
@@ -98,10 +98,6 @@ public class TimerItem implements Parcelable {
         return mItemName;
     }
 
-    public String getTotalTimeString() {
-        return getTimeString(getTotalTime());
-    }
-
     public long getStartTime() {
         return mTimerStart;
     }
@@ -109,7 +105,7 @@ public class TimerItem implements Parcelable {
     public long getTotalTime() {
         long total = 0;
         for (int i = 0; i < mEntries.size(); i++) {
-            total += mEntries.get(i).second;
+            total += mEntries.get(i).getTotalTime();
         }
         return total;
     }
@@ -144,17 +140,21 @@ public class TimerItem implements Parcelable {
 
     public static class Entry implements Parcelable {
 
-        public long first;
-        public long second;
+        public long startTime;
+        public long endTime;
 
-        public Entry(long first, long second) {
-            this.first = first;
-            this.second = second;
+        public Entry(long startTime, long endTime) {
+            this.startTime = startTime;
+            this.endTime = endTime;
         }
 
         public Entry(Parcel in) {
-            first = in.readLong();
-            second = in.readLong();
+            startTime = in.readLong();
+            endTime = in.readLong();
+        }
+
+        public long getTotalTime() {
+            return endTime - startTime;
         }
 
         @Override
@@ -164,8 +164,8 @@ public class TimerItem implements Parcelable {
 
         @Override
         public void writeToParcel(Parcel out, int i) {
-            out.writeLong(first);
-            out.writeLong(second);
+            out.writeLong(startTime);
+            out.writeLong(endTime);
         }
 
         public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
