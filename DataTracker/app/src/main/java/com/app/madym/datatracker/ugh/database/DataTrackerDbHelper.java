@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.app.madym.datatracker.TimerCategory;
+import com.app.madym.datatracker.TimerItem;
 
 public class DataTrackerDbHelper extends SQLiteOpenHelper {
     private static final String TAG = "DbHelper";
@@ -20,7 +20,7 @@ public class DataTrackerDbHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + DataTrackerContract.TimerEntry.TABLE_NAME + " (" +
                     DataTrackerContract.TimerEntry._ID + " INTEGER PRIMARY KEY," +
-                    DataTrackerContract.TimerEntry.COLUMN_NAME_CATEGORY + TEXT_TYPE + COMMA_SEP +
+                    DataTrackerContract.TimerEntry.COLUMN_NAME_ITEM + TEXT_TYPE + COMMA_SEP +
                     DataTrackerContract.TimerEntry.COLUMN_NAME_START + TEXT_TYPE + " )";
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + DataTrackerContract.TimerEntry.TABLE_NAME;
@@ -40,7 +40,7 @@ public class DataTrackerDbHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public void addTimerEntry(TimerCategory.Entry entry, TimerCategory timer) {
+    public void addTimerEntry(TimerItem.Entry entry, TimerItem timer) {
         if (timer == null || entry == null) {
             // Can't do anything
             Log.w(TAG, "addTimerEntry passed a null entry!");
@@ -49,9 +49,9 @@ public class DataTrackerDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_CATEGORY, timer.getCategory());
+        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_ITEM, timer.getItemName());
         // TODO (!!!) entry.first and .second are date and time amount, should be start and end
-        // Make sure to update in TimerCategory.Entry, also should probably make those names not
+        // Make sure to update in TimerItem.Entry, also should probably make those names not
         // the worst
         values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_START, entry.first);
         values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_END, entry.second);
@@ -62,20 +62,20 @@ public class DataTrackerDbHelper extends SQLiteOpenHelper {
         // TODO update totals table
     }
 
-    public TimerCategory getTimerEntry(String category) {
+    public TimerItem getTimerEntry(String item) {
         SQLiteDatabase db = getReadableDatabase();
 
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         String[] projection = {
                 DataTrackerContract.TimerEntry._ID,
-                DataTrackerContract.TimerEntry.COLUMN_NAME_CATEGORY,
+                DataTrackerContract.TimerEntry.COLUMN_NAME_ITEM,
                 DataTrackerContract.TimerEntry.COLUMN_NAME_START,
                 DataTrackerContract.TimerEntry.COLUMN_NAME_END
         };
 
-        String selection = DataTrackerContract.TimerEntry.COLUMN_NAME_CATEGORY + " = ?";
-        String[] selectionArgs = { category };
+        String selection = DataTrackerContract.TimerEntry.COLUMN_NAME_ITEM + " = ?";
+        String[] selectionArgs = { item };
 
         // How you want the results sorted in the resulting Cursor
         String sortOrder =
@@ -90,24 +90,24 @@ public class DataTrackerDbHelper extends SQLiteOpenHelper {
                 null,                                     // don't filter by row groups
                 sortOrder                                 // The sort order
         );
-        TimerCategory entry = createFromCursor(c);
+        TimerItem entry = createFromCursor(c);
         db.close(); // TODO -- I have to do this right?
         return entry;
     }
 
-    public int updateTimerEntry(String category, String start, TimerCategory.Entry entry) {
+    public int updateTimerEntry(String item, String start, TimerItem.Entry entry) {
         SQLiteDatabase db = getReadableDatabase();
 
         // New value for one column
         ContentValues values = new ContentValues();
-        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_CATEGORY, category);
+        values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_ITEM, item);
         values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_START, entry.first);
         values.put(DataTrackerContract.TimerEntry.COLUMN_NAME_START, entry.second);
 
         // Which row to update, based on the title
-        String selection = DataTrackerContract.TimerEntry.COLUMN_NAME_CATEGORY + " LIKE ? AND "
+        String selection = DataTrackerContract.TimerEntry.COLUMN_NAME_ITEM + " LIKE ? AND "
                 + DataTrackerContract.TimerEntry.COLUMN_NAME_START + " LIKE ?";
-        String[] selectionArgs = { category, start };
+        String[] selectionArgs = { item, start };
 
         int count = db.update(
                 DataTrackerContract.TimerEntry.TABLE_NAME,
@@ -117,29 +117,29 @@ public class DataTrackerDbHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public void deleteTimerCategory(String category) {
+    public void deleteTimerItem(String item) {
         // Define 'where' part of query.
-        String selection = DataTrackerContract.TimerEntry.COLUMN_NAME_CATEGORY + " LIKE ?";
+        String selection = DataTrackerContract.TimerEntry.COLUMN_NAME_ITEM + " LIKE ?";
         // Specify arguments in placeholder order.
-        String[] selectionArgs = { category };
+        String[] selectionArgs = { item };
         // Issue SQL statement.
         getWritableDatabase().delete(DataTrackerContract.TimerEntry.TABLE_NAME, selection,
                 selectionArgs);
     }
 
-    public void deleteTimerEntry(String category, String start) {
+    public void deleteTimerEntry(String item, String start) {
         // Define 'where' part of query.
-        String selection = DataTrackerContract.TimerEntry.COLUMN_NAME_CATEGORY + " LIKE ? AND "
+        String selection = DataTrackerContract.TimerEntry.COLUMN_NAME_ITEM + " LIKE ? AND "
                 + DataTrackerContract.TimerEntry.COLUMN_NAME_START + " LIKE ?";
         // Specify arguments in placeholder order.
-        String[] selectionArgs = { category, start };
+        String[] selectionArgs = { item, start };
         // Issue SQL statement.
         getWritableDatabase().delete(DataTrackerContract.TimerEntry.TABLE_NAME, selection,
                 selectionArgs);
 
     }
 
-    private TimerCategory createFromCursor(Cursor c) {
+    private TimerItem createFromCursor(Cursor c) {
         // TODO ????????
         c.moveToFirst();
         long itemId = c.getLong(

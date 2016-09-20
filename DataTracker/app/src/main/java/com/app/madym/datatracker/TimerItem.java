@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class TimerCategory implements Parcelable {
+public class TimerItem implements Parcelable {
 
     private static final int UND = -1;
 
@@ -17,28 +17,28 @@ public class TimerCategory implements Parcelable {
     public static final int STOPPED = 2;
     public static final int CANCELLED = 3;
 
-    private String mCategory;
+    private String mItemName;
     private long mTimerStart;
     private long mTimerEnd;
     private int mState;
     private ArrayList<Entry> mEntries; // first = date, second = amount of time
 
-    public TimerCategory(String category) {
-        mCategory = category;
+    public TimerItem(String name) {
+        mItemName = name;
         mState = NOT_TIMING;
         mEntries = new ArrayList<>();
     }
 
-    public TimerCategory(Parcel in) {
-        mCategory = in.readString();
+    public TimerItem(Parcel in) {
+        mItemName = in.readString();
         mTimerStart = in.readLong();
         mState = in.readInt();
-        mEntries = in.readArrayList(TimerCategory.Entry.class.getClassLoader());
+        mEntries = in.readArrayList(TimerItem.Entry.class.getClassLoader());
     }
 
     @Override
     public void writeToParcel(Parcel out, int i) {
-        out.writeString(mCategory);
+        out.writeString(mItemName);
         out.writeLong(mTimerStart);
         out.writeInt(mState);
         out.writeList(mEntries);
@@ -50,12 +50,12 @@ public class TimerCategory implements Parcelable {
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public TimerCategory createFromParcel(Parcel in) {
-            return new TimerCategory(in);
+        public TimerItem createFromParcel(Parcel in) {
+            return new TimerItem(in);
         }
 
-        public TimerCategory[] newArray(int size) {
-            return new TimerCategory[size];
+        public TimerItem[] newArray(int size) {
+            return new TimerItem[size];
         }
     };
 
@@ -90,12 +90,12 @@ public class TimerCategory implements Parcelable {
         return mEntries;
     }
 
-    public void setCategory(String category) {
-        mCategory = category;
+    public void setItemName(String name) {
+        mItemName = name;
     }
 
-    public String getCategory() {
-        return mCategory;
+    public String getItemName() {
+        return mItemName;
     }
 
     public String getTotalTimeString() {

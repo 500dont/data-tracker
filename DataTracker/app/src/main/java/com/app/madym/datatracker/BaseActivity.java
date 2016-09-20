@@ -8,6 +8,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.ViewGroup;
 
+// Activity that displays a list and a FAB, contains common functionality
+// for current and future activities.
 public class BaseActivity extends AppCompatActivity {
 
     ViewGroup mRoot;
@@ -29,7 +31,7 @@ public class BaseActivity extends AppCompatActivity {
         init();
 
         RecyclerView list = (RecyclerView) findViewById(R.id.list);
-        list.setHasFixedSize(true);
+        list.setHasFixedSize(true); // if rows become different heights, must remove
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         list.setLayoutManager(layoutManager);
         createAndSetAdapter(list);
@@ -38,15 +40,17 @@ public class BaseActivity extends AppCompatActivity {
         configureFab(fab);
     }
 
+    // Overriding classes should put anything needed to initialize the
+    // adapter or restore activity state here.
     public void init() {
-        // Other classes should override this
     }
 
+    // Overriding classes should create and populate the recycler list
+    // adapter (if desired) here.
     public void createAndSetAdapter(RecyclerView list) {
-        // Other classes should override this
     }
 
+    // Overriding classes can set listeners / do things to the fab here.
     public void configureFab(FloatingActionButton fab) {
-        // Other classes should override this
     }
 }
